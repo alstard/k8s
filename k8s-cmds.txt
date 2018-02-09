@@ -1,0 +1,124 @@
+kuberenetes training
+--------------------
+
+||====> Some commands to re-use:
+
+gcloud container clusters create kuar-cluster
+
+kubectl run alpaca-prod --image=gcr.io/kuar-demo/kuard-amd64:1 --replicas=2 --labels="ver=1,app=alpaca,env=prod"
+kubectl run alpaca-test --image=gcr.io/kuar-demo/kuard-amd64:1 --replicas=1 --labels="ver=1,app=alpaca,env=test"
+kubectl run bandicoot-prod --image=gcr.io/kuar-demo/kuard-amd64:2 --replicas=2 --labels="ver=2,app=bandicoot,env=prod"
+kubectl run bandicoot-staging --image=gcr.io/kuar-demo/kuard-amd64:2 --replicas=1 --labels="ver=2,app=bandicoot,env=staging"
+
+kubectl expose deployment alpaca-prod
+
+
+
+
+
+
+
+
+
+
+Scratchpad
+----------
+
+||===> Chapter 6: Service Discovery
+
+kubectl run alpaca-prod --image=gcr.io/kuar-demo/kuard-amd64:1 --replicas=3 --port=8080 --labels="ver=1,app=alpaca,env=prod"
+kubectl expose deployment alpaca-prod
+
+kubectl run bandicoot-prod --image=gcr.io/kuar-demo/kuard-amd64:2 --replicas=2 --port=8080 --labels="ver=2,app=bandicoot,env=prod"
+kubectl expose deployment bandicoot-prod
+
+ALPACA_POD=$(kubectl get pods -l app=alpaca -o jsonpath='{.items[0].metadata.name}')
+kubectl port-forward $ALPACA_POD 48858:8080
+
+BANDICOOT_POD=$(kubectl get pods -l app=bandicoot -o jsonpath='{.items[0].metadata.name}')
+kubectl port-forward $BANDICOOT_POD 48858:8080
+
+
+kubectl describe service alpaca-prod
+kubectl describe endpoints alpaca-prod
+
+||===> Chapter 8: ReplicaSets
+
+kubectl describe rs kuard
+kubectl scale kuard --replicas=4
+kubectl autoscale rs kuard --min=2 --max=5 --cpu-percent=80
+kubectl get hpa
+kubectl delete rs kuard
+
+||===> Chapter 9: DaemonSets
+
+kubectl describe daemonset <DAEMONSETNAME>
+kubectl label nodes <NODENAME> ssd=true
+kubectl get nodes --selector ssd=true
+
+||===> Chapter 10: Jobs
+
+kubectl run -i oneshot --image=gcr.io/kuar-demo/kuard-amd64:1 \
+	--restart=OnFailure -- --keygen-enable --keygen-exit-on-complete --keygen-num-to-gen 10
+kubectl delete jobs <JOBNAME>
+kubectl apply -f job-oneshot.yaml
+kubectl describe jobs oneshot
+kubectl logs <PODNAME>
+kubectl get pod -a -l job-name=<JOBNAME>
+kubectl get pods -w
+QUEUE_POD=$(kubectl get pods -l app=work-queue,component=queue -o jsonpath='{.items[0].metadata.name}')
+kubectl port-forward $QUEUE_POD 8080:8080
+
+curl -X PUT localhost:8080/memq/server/queues/keygen
+for i in work-item-{0..99}; do curl -X POST localhost:8080/memq/server/queues/keygen/enqueue -d "$i"; done
+
+kubectl delete rs,svc,job -l chapter=jobs
+
+||===> Chapter 11: ConfigMaps and Secrets
+
+kubectl create configmap my-config --from-file=my-config.txt \
+	--from-literal=extra-param=EXTRA --from-literal=another-param=ANOTHER
+kubectl get configmaps
+kubectl get configmaps my-config -o yaml
+kubectl describe configmaps my-configmap
+kubectl describe configmaps my-config
+kubectl delete configmap my-config
+curl -O https://storage.googleapis.com/kuar-demo/kuard.crt
+curl -O https://storage.googleapis.com/kuar-demo/kuard.key
+kubectl create secret generic kuard-tls --from-file=kuard.crt --from-file=kuard.key
+kubectl describe secrets kuard-tls
+kubectl get secrets
+
+||===> Chapter 12: Deployments
+
+kubectl run nginx --image=nginx:1.7.12
+kubectl get deployments nginx -o jsonpath \
+	--template {.spec.selector.matchLabels}
+kubectl get replicasets --selector=run=nginx
+kubectl scale deployments nginx --replicas=2
+kubectl get deployments nginx --export -o yaml > nginx-deployment.yaml
+kubectl describe deployments nginx
+kubectl rollout status deployments nginx
+kubectl get replicasets -o wide
+kubectl rollout history deployment nginx --revision=2
+
+||===> Chapter 13: Storage & k8s
+
+
+
+||===> Useful commands
+
+gcloud container clusters create kuar-cluster
+kubectl delete services,deployments -l app
+kubectl delete pods
+gcloud container clusters delete kuar-cluster
+gcloud compute instances list
+
+gcloud container clusters create [NAME]
+gcloud container clusters delete [NAME]
+
+
+
+
+
+

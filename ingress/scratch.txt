@@ -1,0 +1,93 @@
+
+
+GCLOUD COMMANDS
+===============
+
+||===> Useful commands
+
+kubectl delete services,deployments -l app
+kubectl delete pods
+kubectl get pods
+
+gcloud compute instances list
+gcloud container clusters create [NAME]
+gcloud container clusters delete [NAME]
+gcloud config set project wts-ingresstest
+
+KUBE CHEAT SHEET
+================
+
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+CERTIFICATE/SECRETS GENERATION
+==============================
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx-selfsigned.key -out certs/nginx-selfsigned.crt
+openssl dhparam -out certs/dhparam.pem 2048
+
+kubectl create secret tls tls-certificate --key nginx-selfsigned.key --cert nginx-selfsigned.crt
+kubectl create secret generic tls-dhparam --from-file=dhparam.pem
+
+
+UPDATED CONTAINERS
+==================
+gcr.io/google_containers/defaultbackend:1.4
+gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.15
+
+
+DEPLOYMENTS / CONFIGURATION
+===========================
+
+[cribbed from: https://medium.com/@gokulc/setting-up-nginx-ingress-on-kubernetes-2b733d8d2f45]
+
+Create New Namespace          - kubectl create -f ingresstest-namespace.json
+Set New Namespace             - kubectl config set-context ns-ingress-test --namespace=ns-ingress-test --cluster=gke_wts-kubetests_europe-west2-b_ingresstest --user=gke_wts-kubetests_europe-west2-b_ingresstest
+                                kubectl config set-context ns-ingress-test --namespace=ns-ingress-test --cluster=kops1.kops.wulfruntech.uk --user=kops1.kops.wulfruntech.uk
+Set Context                   - kubectl config use-context ns-ingress-test
+Check New Context             - kubectl config current-context
+Deployment/Service            - kubectl create -f helloworld.yaml
+Deployment/Service            - kubectl create -f default-backend.yaml
+Generate Cert/dhparam         - [see above openssl commands]
+Create k8s secrets #1         - kubectl create secret tls tls-certificate --key nginx-selfsigned.key --cert nginx-selfsigned.crt
+Create k8s secrets #2         - kubectl create secret generic tls-dhparam --from-file=dhparam.pem
+ConfigMap (x3)                - kubectl apply -f ingress-configmap.yaml
+Replication Controllers (x2)  - kubectl apply -f ingress-rc.yaml
+Ingress Service (changed!)    - kubectl apply -f ingress-svc.yaml
+Deployment/Service            - kubectl create -f nginx-controller.yaml
+Get External IP               - kubectl get services -o wide nginx-ingress
+curl to default backend       - curl http://<EXTERNAL IP>:<PORT> [response should be: 'default backend - 404']
+STUFF?
+STUFF?
+Deploy ingress rules          - kubectl apply -f ingress.yaml [need to modify DNS/hosts for api.sample.com]
+test(s)                       - curl -i -X GET http://api.sample.com/myass
+                              - curl -i -X POST http://api.sample.com/myass
+                              - curl -i -X PUT http://api.sample.com/myass
+
+
+===================> KOPS
+
+Deployment/Service            - kubectl create -f helloworld.yaml --namespace=ingresstest
+Deployment/Service            - kubectl apply -f default-backend.yaml --namespace=ingresstest
+Generate Cert/dhparam         - [see above openssl commands]
+Create k8s secrets #1         - kubectl create secret tls tls-certificate --key nginx-selfsigned.key --cert nginx-selfsigned.crt  --namespace=ingresstest
+Create k8s secrets #2         - kubectl create secret generic tls-dhparam --from-file=dhparam.pem  --namespace=ingresstest
+ConfigMap (x3)                - kubectl apply -f ingress-configmap.yaml --namespace=ingresstest
+Replication Controllers (x2)  - kubectl apply -f ingress-rc.yaml --namespace=ingresstest
+Ingress Service (changed!)    - kubectl apply -f ingress-svc.yaml --namespace=ingresstest
+
+Deployment/Service            - kubectl apply -f nginx-controller.yaml
+Get External IP               - kubectl get services -o wide nginx-ingress
+curl to default backend       - curl http://<EXTERNAL IP>:<PORT> [response should be: 'default backend - 404']
+STUFF?
+STUFF?
+Deploy ingress rules          - kubectl apply -f ingress.yaml --namespace=ingresstest
+test(s)                       - curl -i -X GET http://api.sample.com/myass
+                              - curl -i -X POST http://api.sample.com/myass
+                              - curl -i -X PUT http://api.sample.com/myass
+
+
+
+
+
+
+
