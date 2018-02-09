@@ -5,14 +5,14 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/ssl-services: "hello-world-svc"
-    #ingress.kubernetes.io/ssl-redirect: “true”
+    ingress.kubernetes.io/ssl-redirect: “true”
 spec:
   tls:
     - hosts:
       - api.sample.com
       secretName: tls-certificate
   rules:
-  - host: kops1.kops.wulfruntech.uk
+  - host: ac39853f00dac11e8abfc0a012fe9d26-1252048769.eu-west-2.elb.amazonaws.com
     http:
       paths:
       - path: /
