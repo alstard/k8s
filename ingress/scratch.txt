@@ -82,9 +82,9 @@ curl to default backend       - curl http://<EXTERNAL IP>:<PORT> [response shoul
 STUFF?
 STUFF?
 Deploy ingress rules          - kubectl apply -f ingress.yaml --namespace=ingresstest
-test(s)                       - curl -i -X GET http://api.sample.com/myass
-                              - curl -i -X POST http://api.sample.com/myass
-                              - curl -i -X PUT http://api.sample.com/myass
+test(s)                       - curl -i -X GET http://ingresstest.kops.wulfruntech.uk/myass
+                              - curl -i -X POST http://ingresstest.kops.wulfruntech.uk/myass
+                              - curl -i -X PUT http://ingresstest.kops.wulfruntech.uk/myass
 
 
 Deploying Nginx or Traefik Ingress Controllers

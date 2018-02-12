@@ -55,6 +55,7 @@ kind: Service
 metadata:
   name: nginx-ingress
 spec:
+  externalTrafficPolicy: Local
   type: LoadBalancer
   ports:
   - name: http
