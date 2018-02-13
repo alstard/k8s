@@ -93,6 +93,5 @@ Deploying Nginx or Traefik Ingress Controllers
 [http://danielfm.me/posts/painless-nginx-ingress.html]
 
 
-
-
+## Kubernetes Service Types 
 
