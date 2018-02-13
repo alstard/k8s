@@ -66,28 +66,32 @@ test(s)                       - curl -i -X GET http://api.sample.com/myass
 
 ===================> KOPS
 
-Deployment/Service            - kubectl create -f helloworld.yaml --namespace=ingresstest
+Create New Namespace          - kubectl create -f ingresstest-namespace.json
+Deployment/Service            - kubectl apply -f helloworld.yaml --namespace=ingresstest
 Deployment/Service            - kubectl apply -f default-backend.yaml --namespace=ingresstest
 Generate Cert/dhparam         - [see above openssl commands]
-Create k8s secrets #1         - kubectl create secret tls tls-certificate --key nginx-selfsigned.key --cert nginx-selfsigned.crt  --namespace=ingresstest
-Create k8s secrets #2         - kubectl create secret generic tls-dhparam --from-file=dhparam.pem  --namespace=ingresstest
+Create k8s secrets #1         - kubectl create secret tls tls-certificate --key certs/nginx-selfsigned.key --cert certs/nginx-selfsigned.crt  --namespace=ingresstest
+Create k8s secrets #2         - kubectl create secret generic tls-dhparam --from-file=certs/dhparam.pem  --namespace=ingresstest
 ConfigMap (x3)                - kubectl apply -f ingress-configmap.yaml --namespace=ingresstest
 Replication Controllers (x2)  - kubectl apply -f ingress-rc.yaml --namespace=ingresstest
-Ingress Service (changed!)    - kubectl apply -f ingress-svc.yaml --namespace=ingresstest
+Ingress Service               - kubectl apply -f ingress-svc.yaml --namespace=ingresstest
 
-Deployment/Service            - kubectl apply -f nginx-controller.yaml
-Get External IP               - kubectl get services -o wide nginx-ingress
+Deployment/Service            - kubectl apply -f nginx-controller.yaml --namespace=ingresstest
+Get External IP               - kubectl get services -o wide nginx-ingress --namespace=ingresstest
 curl to default backend       - curl http://<EXTERNAL IP>:<PORT> [response should be: 'default backend - 404']
 STUFF?
 STUFF?
 Deploy ingress rules          - kubectl apply -f ingress.yaml --namespace=ingresstest
-test(s)                       - curl -i -X GET http://api.sample.com/myass
-                              - curl -i -X POST http://api.sample.com/myass
-                              - curl -i -X PUT http://api.sample.com/myass
+test(s)                       - curl -i -X GET http://ingresstest.kops.wulfruntech.uk/myass
+                              - curl -i -X POST http://ingresstest.kops.wulfruntech.uk/myass
+                              - curl -i -X PUT http://ingresstest.kops.wulfruntech.uk/myass
 
 
+Deploying Nginx or Traefik Ingress Controllers
+
+[https://daemonza.github.io/2017/02/13/kubernetes-nginx-ingress-controller/]
+[http://danielfm.me/posts/painless-nginx-ingress.html]
 
 
-
-
+## Kubernetes Service Types 
 

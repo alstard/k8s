@@ -9,13 +9,14 @@ metadata:
 spec:
   tls:
     - hosts:
-      - api.sample.com
+      - ingresstest.kops.wulfruntech.uk
       secretName: tls-certificate
   rules:
-  - host: kops1.kops.wulfruntech.uk
+#  - host: acdcdc310100211e8a70f0af3855dd83-2101007909.eu-west-2.elb.amazonaws.com
+  - host: ingresstest.kops.wulfruntech.uk
     http:
       paths:
-      - path: /
+      - path: /test
         backend:
           serviceName: hello-world-svc
           servicePort: 8080
