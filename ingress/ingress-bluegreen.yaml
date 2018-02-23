@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+  namespace: ingresstest
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: "blue.ingresstest.kops.wulfruntech.uk"
+    http:
+      paths:
+      - path: /test/get/blueapi
+        backend:
+          serviceName: hello-world-svc
+          servicePort: 8080  
+  - host: "green.ingresstest.kops.wulfruntech.uk"
+    http:
+      paths:
+      - path: /test/get/greenapi
+        backend:
+          serviceName: hello-world-svc
+          servicePort: 8080  
